@@ -35,14 +35,6 @@ class _YoutubeVideoState extends State<YoutubeVideo> {
     super.initState();
   }
 
-  Future setAudio() async {
-    // player.setSourceUrl(
-    //   'http://commondatastorage.googleapis.com/codeskulptor-assets/week7-brrring.m4a',
-    // );
-    player.setSource(AssetSource('Correct_Sound.m4a'));
-    playerWrong.setSource(AssetSource('Wrong.mp3'));
-  }
-
   @override
   void dispose() {
     // TODO: implement dispose
@@ -52,21 +44,38 @@ class _YoutubeVideoState extends State<YoutubeVideo> {
     super.dispose();
   }
 
+  Future setAudio() async {
+    // player.setSourceUrl(
+    //   'http://commondatastorage.googleapis.com/codeskulptor-assets/week7-brrring.m4a',
+    // );
+    player.setSource(AssetSource('Correct_Sound.m4a'));
+    playerWrong.setSource(AssetSource('Wrong.mp3'));
+  }
+
+  //variable for choices activity & color
   bool active1 = true;
   bool active2 = true;
   Color answer1Color = Color.fromRGBO(0, 0, 0, 0.259);
   Color answer2Color = Color.fromRGBO(0, 0, 0, 0.259);
-  final CountDownController _countController = CountDownController();
+  bool secondTimeChoosing = false;
+
+  //switch modes
   late bool isAsking;
+
+  // Breakpoints related
   bool firstTime = false;
   bool firstTime2 = false;
   int currentBreakPoint = 0;
-  int currentBreakpointId = 1;
   late List<BreakPoint> breakpoints;
 
-  late YoutubePlayerController _controller;
+  // count ctrlr
+  final CountDownController _countController = CountDownController();
   final player = AudioPlayer();
   final playerWrong = AudioPlayer();
+
+  // yt ctrlr
+  late YoutubePlayerController _controller;
+
   @override
   void didChangeDependencies() {
     //print statements for debugging
@@ -76,6 +85,7 @@ class _YoutubeVideoState extends State<YoutubeVideo> {
         .getLevelById(context.read<LevelsProvider>().currentLevelId)
         .videoLink);
     print(widget.videoId);
+
     //Initializing the ctrlr
     _controller = YoutubePlayerController(
       initialVideoId: context
@@ -84,7 +94,6 @@ class _YoutubeVideoState extends State<YoutubeVideo> {
           .videoLink,
       params: YoutubePlayerParams(
         autoPlay: false,
-        // Defining custom playlist
         startAt: Duration(seconds: 0),
         showControls: false,
         showFullscreenButton: false,
@@ -109,10 +118,12 @@ class _YoutubeVideoState extends State<YoutubeVideo> {
         for (BreakPoint breakpoint in breakpoints) {
           if (_controller.value.position.inSeconds ==
               breakpoint.timestamp.inSeconds) {
-            if (breakpoint.id == currentBreakpointId) {
+            if (breakpoint.id == currentBreakPoint) {
               print('fess');
+
               _controller.pause();
               setState(() {
+                secondTimeChoosing = false;
                 isAsking = true;
               });
               firstTime2 = true;
@@ -121,27 +132,6 @@ class _YoutubeVideoState extends State<YoutubeVideo> {
             }
           }
         }
-        // if (_controller.value.position.inSeconds == 5) {
-        //   if (!firstTime2) {
-        //     print('fess');
-        //     setState(() {
-        //       isAsking = true;
-        //     });
-        //     firstTime2 = true;
-        //   }
-        // }
-        // if (_controller.value.position.inSeconds == timer.inSeconds) {
-        //   if (!firstTime) {
-        //     _controller.pause();
-        //     _controller.hidePauseOverlay();
-        //     _controller.hideTopMenu();
-        //     print('fessawy');
-        //     setState(() {
-        //       isAsking = true;
-        //     });
-        //     firstTime = true;
-        //   }
-        // }
       },
     );
     super.didChangeDependencies();
@@ -240,75 +230,101 @@ class _YoutubeVideoState extends State<YoutubeVideo> {
                                         maxLines: 1,
                                       ),
                                       onPressed: active1
-                                          ? () async {
-                                              print('pressed');
+                                          ? secondTimeChoosing
+                                              ? () {}
+                                              : () async {
+                                                  print('pressed');
+                                                  secondTimeChoosing = true;
+                                                  //play sound
+                                                  if (breakpointsWidg[
+                                                          currentBreakPoint]
+                                                      .answer1
+                                                      .isCorrect) {
+                                                    await player.resume();
+                                                  } else {
+                                                    await playerWrong.resume();
+                                                  }
 
-                                              if (breakpointsWidg[
-                                                      currentBreakPoint]
-                                                  .answer1
-                                                  .isCorrect) {
-                                                await player.resume();
-                                              } else {
-                                                await playerWrong.resume();
-                                              }
+                                                  //change color & lives
+                                                  setState(() {
+                                                    active2 = false;
+                                                    if (breakpointsWidg[
+                                                            currentBreakPoint]
+                                                        .answer1
+                                                        .isCorrect) {
+                                                      answer1Color =
+                                                          const Color.fromARGB(
+                                                              255, 35, 154, 39);
+                                                    } else {
+                                                      answer1Color =
+                                                          const Color.fromARGB(
+                                                              255, 213, 13, 13);
+                                                      context
+                                                          .read<Lives>()
+                                                          .ReduceLivesByOne();
+                                                    }
 
-                                              setState(() {
-                                                if (breakpointsWidg[
-                                                        currentBreakPoint]
-                                                    .answer1
-                                                    .isCorrect) {
-                                                  answer1Color = Color.fromARGB(
-                                                      255, 35, 154, 39);
-                                                } else {
-                                                  answer1Color = Color.fromARGB(
-                                                      255, 213, 13, 13);
-                                                  context
-                                                      .read<Lives>()
-                                                      .ReduceLivesByOne();
+                                                    _countController.pause();
+                                                  });
+
+                                                  //delay 1 sec for sound to play
+                                                  await Future.delayed(
+                                                      const Duration(
+                                                          seconds: 1));
+
+                                                  // If correct: switch back to playing mode,  increase CurrentBreakpoint
+                                                  // switch the color of the choice to normal
+
+                                                  if (breakpointsWidg[
+                                                          currentBreakPoint]
+                                                      .answer1
+                                                      .isCorrect) {
+                                                    setState(() {
+                                                      isAsking = false;
+                                                      _controller.play();
+                                                      if (currentBreakPoint !=
+                                                          breakpointsWidg
+                                                              .last.id) {
+                                                        currentBreakPoint++;
+                                                        currentBreakPoint =
+                                                            breakpointsWidg[
+                                                                    currentBreakPoint]
+                                                                .id;
+                                                      }
+                                                    });
+                                                    answer1Color =
+                                                        const Color.fromRGBO(
+                                                            0, 0, 0, 0.259);
+                                                  }
+
+                                                  // If correct: switch back to playing mode,  go back 2 seconds from the same bkpnt timestamp
+                                                  // switch the color of the choice to normal
+
+                                                  else {
+                                                    setState(() {
+                                                      isAsking = false;
+                                                      _controller.seekTo(
+                                                        breakpointsWidg[
+                                                                    currentBreakPoint]
+                                                                .timestamp -
+                                                            Duration(
+                                                                seconds: 2),
+                                                      );
+
+                                                      _controller.play();
+                                                      currentBreakPoint =
+                                                          breakpointsWidg[
+                                                                  currentBreakPoint]
+                                                              .id;
+                                                      answer1Color =
+                                                          const Color.fromRGBO(
+                                                              0, 0, 0, 0.259);
+                                                      // breakpoints[currentBreakPoint]
+                                                      //     .isChecked = false;
+                                                    });
+                                                  }
+                                                  active2 = true;
                                                 }
-
-                                                _countController.pause();
-                                              });
-                                              await Future.delayed(
-                                                  Duration(seconds: 1));
-
-                                              if (breakpointsWidg[
-                                                      currentBreakPoint]
-                                                  .answer1
-                                                  .isCorrect) {
-                                                setState(() {
-                                                  isAsking = false;
-                                                  _controller.play();
-                                                  currentBreakPoint++;
-                                                  currentBreakpointId =
-                                                      breakpointsWidg[
-                                                              currentBreakPoint]
-                                                          .id;
-                                                });
-                                                answer1Color = Color.fromRGBO(
-                                                    0, 0, 0, 0.259);
-                                              } else {
-                                                setState(() {
-                                                  isAsking = false;
-                                                  _controller.seekTo(
-                                                    breakpointsWidg[
-                                                                currentBreakPoint]
-                                                            .timestamp -
-                                                        Duration(seconds: 2),
-                                                  );
-
-                                                  _controller.play();
-                                                  currentBreakpointId =
-                                                      breakpointsWidg[
-                                                              currentBreakPoint]
-                                                          .id;
-                                                  answer1Color = Color.fromRGBO(
-                                                      0, 0, 0, 0.259);
-                                                  // breakpoints[currentBreakPoint]
-                                                  //     .isChecked = false;
-                                                });
-                                              }
-                                            }
                                           : null,
                                     ),
                                   ),
@@ -325,7 +341,7 @@ class _YoutubeVideoState extends State<YoutubeVideo> {
                                         breakpointsWidg[currentBreakPoint]
                                             .answer2
                                             .text,
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           color: Colors.white,
                                           fontFamily: 'ElMessiri',
                                           fontSize: 70,
@@ -333,76 +349,88 @@ class _YoutubeVideoState extends State<YoutubeVideo> {
                                         maxLines: 1,
                                       ),
                                       onPressed: active2
-                                          ? () async {
-                                              print('pressed');
-                                              if (breakpointsWidg[
-                                                      currentBreakPoint]
-                                                  .answer2
-                                                  .isCorrect) {
-                                                await player.resume();
-                                              } else {
-                                                await playerWrong.resume();
-                                              }
+                                          ? secondTimeChoosing
+                                              ? () {}
+                                              : () async {
+                                                  print('pressed');
+                                                  if (breakpointsWidg[
+                                                          currentBreakPoint]
+                                                      .answer2
+                                                      .isCorrect) {
+                                                    await player.resume();
+                                                  } else {
+                                                    await playerWrong.resume();
+                                                  }
 
-                                              setState(() {
-                                                active1 = false;
-                                                if (breakpointsWidg[
-                                                        currentBreakPoint]
-                                                    .answer2
-                                                    .isCorrect) {
-                                                  answer2Color = Color.fromARGB(
-                                                      255, 35, 154, 39);
-                                                } else {
-                                                  answer2Color = Color.fromARGB(
-                                                      255, 213, 13, 13);
-                                                  context
-                                                      .read<Lives>()
-                                                      .ReduceLivesByOne();
+                                                  setState(() {
+                                                    active1 = false;
+                                                    if (breakpointsWidg[
+                                                            currentBreakPoint]
+                                                        .answer2
+                                                        .isCorrect) {
+                                                      answer2Color =
+                                                          const Color.fromARGB(
+                                                              255, 35, 154, 39);
+                                                    } else {
+                                                      answer2Color =
+                                                          const Color.fromARGB(
+                                                              255, 213, 13, 13);
+                                                      context
+                                                          .read<Lives>()
+                                                          .ReduceLivesByOne();
+                                                    }
+
+                                                    _countController.pause();
+                                                  });
+                                                  await Future.delayed(
+                                                      const Duration(
+                                                          seconds: 1));
+                                                  if (breakpointsWidg[
+                                                          currentBreakPoint]
+                                                      .answer2
+                                                      .isCorrect) {
+                                                    setState(() {
+                                                      isAsking = false;
+                                                      _controller.play();
+                                                      if (currentBreakPoint !=
+                                                          breakpointsWidg
+                                                              .last.id) {
+                                                        currentBreakPoint++;
+                                                        currentBreakPoint =
+                                                            breakpointsWidg[
+                                                                    currentBreakPoint]
+                                                                .id;
+                                                      }
+                                                    });
+                                                    answer2Color =
+                                                        Color.fromRGBO(
+                                                            0, 0, 0, 0.259);
+                                                  } else {
+                                                    setState(() {
+                                                      isAsking = false;
+                                                      _controller.seekTo(
+                                                        breakpointsWidg[
+                                                                    currentBreakPoint]
+                                                                .timestamp -
+                                                            Duration(
+                                                                seconds: 2),
+                                                      );
+
+                                                      _controller.play();
+                                                      currentBreakPoint =
+                                                          breakpointsWidg[
+                                                                  currentBreakPoint]
+                                                              .id;
+                                                      answer2Color =
+                                                          Color.fromRGBO(
+                                                              0, 0, 0, 0.259);
+                                                      // breakpoints[currentBreakPoint]
+                                                      //     .isChecked = false;
+                                                    });
+                                                  }
+
+                                                  active1 = true;
                                                 }
-
-                                                _countController.pause();
-                                              });
-                                              await Future.delayed(
-                                                  Duration(seconds: 1));
-                                              if (breakpointsWidg[
-                                                      currentBreakPoint]
-                                                  .answer2
-                                                  .isCorrect) {
-                                                setState(() {
-                                                  isAsking = false;
-                                                  _controller.play();
-                                                  currentBreakPoint++;
-                                                  currentBreakpointId =
-                                                      breakpointsWidg[
-                                                              currentBreakPoint]
-                                                          .id;
-                                                });
-                                                answer2Color = Color.fromRGBO(
-                                                    0, 0, 0, 0.259);
-                                              } else {
-                                                setState(() {
-                                                  isAsking = false;
-                                                  _controller.seekTo(
-                                                    breakpointsWidg[
-                                                                currentBreakPoint]
-                                                            .timestamp -
-                                                        Duration(seconds: 2),
-                                                  );
-
-                                                  _controller.play();
-                                                  currentBreakpointId =
-                                                      breakpointsWidg[
-                                                              currentBreakPoint]
-                                                          .id;
-                                                  answer2Color = Color.fromRGBO(
-                                                      0, 0, 0, 0.259);
-                                                  // breakpoints[currentBreakPoint]
-                                                  //     .isChecked = false;
-                                                });
-                                              }
-
-                                              active1 = true;
-                                            }
                                           : null,
                                     ),
                                   ),
@@ -422,12 +450,13 @@ class _YoutubeVideoState extends State<YoutubeVideo> {
                                 width: widget.constraints.maxWidth * .3,
                                 height: widget.constraints.maxHeight * .3,
                                 ringColor: Colors.black54,
-                                fillColor: Color.fromARGB(255, 136, 19, 10),
+                                fillColor:
+                                    const Color.fromARGB(255, 136, 19, 10),
                                 backgroundColor:
-                                    Color.fromARGB(255, 206, 26, 14),
+                                    const Color.fromARGB(255, 206, 26, 14),
                                 strokeWidth: 20.0,
                                 strokeCap: StrokeCap.round,
-                                textStyle: TextStyle(
+                                textStyle: const TextStyle(
                                     fontSize: 80.0,
                                     fontFamily: 'Blaka',
                                     color: Colors.white,
@@ -453,10 +482,6 @@ class _YoutubeVideoState extends State<YoutubeVideo> {
                                     );
 
                                     _controller.play();
-                                    currentBreakpointId =
-                                        breakpointsWidg[currentBreakPoint].id;
-                                    // breakpoints[currentBreakPoint]
-                                    //     .isChecked = false;
                                   });
                                 },
                                 onChange: (String timeStamp) {

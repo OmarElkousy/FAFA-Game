@@ -16,6 +16,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_app/Constants/style.dart';
 
 import '../../Page_Navigator.dart';
+import 'Small_game_page.dart';
 
 class gameScaffold extends StatelessWidget {
   @override
@@ -182,7 +183,10 @@ class gameScaffold extends StatelessWidget {
                   ],
                 ),
               ),
-              LargeGamePage(),
+              ResponsiveWidget(
+                  largeScreen: LargeGamePage(),
+                  mediumScreen: LargeGamePage(),
+                  smallScreen: SmallGamePage()),
             ],
           ),
         );

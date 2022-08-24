@@ -7,6 +7,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 
 import '../../Providers/levels_provider.dart';
+import '../game/game_scaffold.dart';
 
 class SmallLevelsPage extends StatelessWidget {
   const SmallLevelsPage({Key? key}) : super(key: key);
@@ -165,17 +166,27 @@ class SmallLevelsPage extends StatelessWidget {
                                                   child: FittedBox(
                                                     child: ElevatedButton(
                                                       onPressed: () {
+                                                        print(level.id);
+                                                        print('from level');
                                                         context
                                                             .read<
                                                                 LevelsProvider>()
                                                             .changeCurrentLevelId(
                                                                 level.id);
-
                                                         context
                                                             .read<
                                                                 PageProvider>()
                                                             .changeCurrentPage(
                                                                 PageTypes.game);
+                                                        context
+                                                            .read<
+                                                                PageProvider>()
+                                                            .reversePlaying();
+                                                        Navigator.of(context)
+                                                            .pushReplacement(
+                                                                MaterialPageRoute(
+                                                                    builder: (_) =>
+                                                                        gameScaffold()));
                                                       },
                                                       style: ElevatedButton
                                                           .styleFrom(

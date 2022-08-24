@@ -3,6 +3,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:circular_countdown_timer/circular_countdown_timer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/Providers/page_ctrlr.dart';
+import 'package:ndialog/ndialog.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_app/Providers/levels_provider.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
@@ -197,14 +198,57 @@ class _SmallYoutubeVideoState extends State<SmallYoutubeVideo> {
                       debugPrint('Countdown Ended');
                       await playerWrong.resume();
                       context.read<Lives>().ReduceLivesByOne();
-                      setState(() {
-                        isAsking = false;
-                        _controller.seekTo(
-                          breakpointsWidg[currentBreakPoint].timestamp -
-                              Duration(seconds: 2),
-                        );
+                      setState(() async {
+                        if (context.read<Lives>().lives != 0) {
+                          isAsking = false;
+                          _controller.seekTo(
+                            breakpointsWidg[currentBreakPoint].timestamp -
+                                Duration(seconds: 2),
+                          );
 
-                        _controller.play();
+                          _controller.play();
+                        } else {
+                          answer1Color = const Color.fromRGBO(0, 0, 0, 0.259);
+                          await NAlertDialog(
+                            dismissable: false,
+                            backgroundColor: Color.fromARGB(255, 136, 19, 10),
+                            blur: 2,
+                            dialogStyle: DialogStyle(titleDivider: true),
+                            title: Center(
+                              child: Text(
+                                "حاول مرة أخري",
+                                style: TextStyle(
+                                  fontFamily: 'ElMessiri',
+                                ),
+                              ),
+                            ),
+                            content: Text(
+                              "عليك أن تختار الإجابة الصحيحة بالسرعة المناسبة",
+                              style: TextStyle(
+                                fontFamily: 'ElMessiri',
+                              ),
+                            ),
+                            actions: <Widget>[
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  primary: Color.fromARGB(255, 136, 19, 10),
+                                ),
+                                onPressed: () {
+                                  Navigator.of(context)
+                                      .pushReplacementNamed('/');
+                                },
+                                child: Text(
+                                  'عد للبداية',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: 'ElMessiri',
+                                  ),
+                                ),
+                              )
+                            ],
+                          ).show(context);
+                          isAsking = false;
+                        }
                       });
                     },
                     onChange: (String timeStamp) {
@@ -354,30 +398,90 @@ class _SmallYoutubeVideoState extends State<SmallYoutubeVideo> {
                                                         0, 0, 0, 0.259);
                                               }
 
-                                              // If correct: switch back to playing mode,  go back 2 seconds from the same bkpnt timestamp
+                                              // If wrong: switch back to playing mode,  go back 2 seconds from the same bkpnt timestamp
                                               // switch the color of the choice to normal
 
                                               else {
-                                                setState(() {
-                                                  isAsking = false;
-                                                  _controller.seekTo(
-                                                    breakpointsWidg[
-                                                                currentBreakPoint]
-                                                            .timestamp -
-                                                        Duration(seconds: 2),
-                                                  );
-
-                                                  _controller.play();
-                                                  currentBreakPoint =
+                                                if (context
+                                                        .read<Lives>()
+                                                        .lives !=
+                                                    0) {
+                                                  setState(() {
+                                                    isAsking = false;
+                                                    _controller.seekTo(
                                                       breakpointsWidg[
-                                                              currentBreakPoint]
-                                                          .id;
+                                                                  currentBreakPoint]
+                                                              .timestamp -
+                                                          Duration(seconds: 2),
+                                                    );
+
+                                                    _controller.play();
+                                                    currentBreakPoint =
+                                                        breakpointsWidg[
+                                                                currentBreakPoint]
+                                                            .id;
+                                                    answer1Color =
+                                                        const Color.fromRGBO(
+                                                            0, 0, 0, 0.259);
+                                                    // breakpoints[currentBreakPoint]
+                                                    //     .isChecked = false;
+                                                  });
+                                                } else {
+                                                  isAsking = false;
                                                   answer1Color =
                                                       const Color.fromRGBO(
                                                           0, 0, 0, 0.259);
-                                                  // breakpoints[currentBreakPoint]
-                                                  //     .isChecked = false;
-                                                });
+                                                  await NAlertDialog(
+                                                    dismissable: false,
+                                                    backgroundColor:
+                                                        Color.fromARGB(
+                                                            255, 136, 19, 10),
+                                                    blur: 2,
+                                                    dialogStyle: DialogStyle(
+                                                        titleDivider: true),
+                                                    title: Center(
+                                                      child: Text(
+                                                        "حاول مرة أخري",
+                                                        style: TextStyle(
+                                                          fontFamily:
+                                                              'ElMessiri',
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    content: Text(
+                                                      "عليك أن تختار الإجابة الصحيحة بالسرعة المناسبة",
+                                                      style: TextStyle(
+                                                        fontFamily: 'ElMessiri',
+                                                      ),
+                                                    ),
+                                                    actions: <Widget>[
+                                                      ElevatedButton(
+                                                        style: ElevatedButton
+                                                            .styleFrom(
+                                                          primary:
+                                                              Color.fromARGB(
+                                                                  255,
+                                                                  136,
+                                                                  19,
+                                                                  10),
+                                                        ),
+                                                        onPressed: () {
+                                                          Navigator.of(context)
+                                                              .pushReplacementNamed(
+                                                                  '/');
+                                                        },
+                                                        child: Text(
+                                                          'عد للبداية',
+                                                          style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontFamily:
+                                                                'ElMessiri',
+                                                          ),
+                                                        ),
+                                                      )
+                                                    ],
+                                                  ).show(context);
+                                                }
                                               }
                                               active2 = true;
                                             }
@@ -460,25 +564,86 @@ class _SmallYoutubeVideoState extends State<SmallYoutubeVideo> {
                                                 answer2Color = Color.fromRGBO(
                                                     0, 0, 0, 0.259);
                                               } else {
-                                                setState(() {
-                                                  isAsking = false;
-                                                  _controller.seekTo(
-                                                    breakpointsWidg[
-                                                                currentBreakPoint]
-                                                            .timestamp -
-                                                        Duration(seconds: 2),
-                                                  );
-
-                                                  _controller.play();
-                                                  currentBreakPoint =
+                                                if (context
+                                                        .read<Lives>()
+                                                        .lives !=
+                                                    0) {
+                                                  setState(() {
+                                                    isAsking = false;
+                                                    _controller.seekTo(
                                                       breakpointsWidg[
-                                                              currentBreakPoint]
-                                                          .id;
-                                                  answer2Color = Color.fromRGBO(
-                                                      0, 0, 0, 0.259);
-                                                  // breakpoints[currentBreakPoint]
-                                                  //     .isChecked = false;
-                                                });
+                                                                  currentBreakPoint]
+                                                              .timestamp -
+                                                          Duration(seconds: 2),
+                                                    );
+
+                                                    _controller.play();
+                                                    currentBreakPoint =
+                                                        breakpointsWidg[
+                                                                currentBreakPoint]
+                                                            .id;
+                                                    answer2Color =
+                                                        const Color.fromRGBO(
+                                                            0, 0, 0, 0.259);
+                                                    // breakpoints[currentBreakPoint]
+                                                    //     .isChecked = false;
+                                                  });
+                                                } else {
+                                                  isAsking = false;
+                                                  answer2Color =
+                                                      const Color.fromRGBO(
+                                                          0, 0, 0, 0.259);
+                                                  await NAlertDialog(
+                                                    dismissable: false,
+                                                    backgroundColor:
+                                                        Color.fromARGB(
+                                                            255, 136, 19, 10),
+                                                    blur: 2,
+                                                    dialogStyle: DialogStyle(
+                                                        titleDivider: true),
+                                                    title: Center(
+                                                      child: Text(
+                                                        "حاول مرة أخري",
+                                                        style: TextStyle(
+                                                          fontFamily:
+                                                              'ElMessiri',
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    content: Text(
+                                                      "عليك أن تختار الإجابة الصحيحة بالسرعة المناسبة",
+                                                      style: TextStyle(
+                                                        fontFamily: 'ElMessiri',
+                                                      ),
+                                                    ),
+                                                    actions: <Widget>[
+                                                      ElevatedButton(
+                                                        style: ElevatedButton
+                                                            .styleFrom(
+                                                          primary:
+                                                              Color.fromARGB(
+                                                                  255,
+                                                                  136,
+                                                                  19,
+                                                                  10),
+                                                        ),
+                                                        onPressed: () {
+                                                          Navigator.of(context)
+                                                              .pushReplacementNamed(
+                                                                  '/');
+                                                        },
+                                                        child: Text(
+                                                          'عد للبداية',
+                                                          style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontFamily:
+                                                                'ElMessiri',
+                                                          ),
+                                                        ),
+                                                      )
+                                                    ],
+                                                  ).show(context);
+                                                }
                                               }
 
                                               active1 = true;

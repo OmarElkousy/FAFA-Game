@@ -42,6 +42,7 @@ dependencies:
   youtube_player_iframe:  ^2.0.5+1
   circular_countdown_timer: ^0.2.2
   audioplayers: ^1.0.1
+  ndialog: ^4.1.1+1
   
   
   flutter_localizations: 

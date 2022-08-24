@@ -89,21 +89,22 @@ class _SmallGamePageState extends State<SmallGamePage> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceEvenly,
                                   children: [
-                                    ...List.generate(
-                                      context.watch<Lives>().lives,
-                                      (index) => Row(
-                                        children: [
-                                          Icon(
-                                            Icons.health_and_safety_rounded,
-                                            size: 50,
-                                            color: Colors.red,
-                                          ),
-                                          SizedBox(
-                                            width: constraints.maxWidth * .01,
-                                          ),
-                                        ],
+                                    if (context.watch<Lives>().lives != 0)
+                                      ...List.generate(
+                                        context.watch<Lives>().lives,
+                                        (index) => Row(
+                                          children: [
+                                            Icon(
+                                              Icons.health_and_safety_rounded,
+                                              size: 50,
+                                              color: Colors.red,
+                                            ),
+                                            SizedBox(
+                                              width: constraints.maxWidth * .01,
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
                                     ...List.generate(
                                       5 - context.watch<Lives>().lives,
                                       (index) => Row(

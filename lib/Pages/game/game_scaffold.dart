@@ -2,25 +2,56 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_app/Pages/game/Large_game_page.dart';
-import 'package:flutter_app/Pages/medium_Intro_Page.dart';
-import 'package:flutter_app/Pages/small_Intro_Page%20.dart';
-import 'package:flutter_app/Providers/levels_provider.dart';
+
 import 'package:flutter_app/Providers/page_ctrlr.dart';
-import 'package:flutter_app/Widgets/side_menu.dart';
-import 'package:flutter_app/Widgets/top_navbar.dart';
+
 import 'package:flutter_app/helpers/responsive_widegt.dart';
-import 'package:flutter_app/Widgets/large_Screen.dart';
-import 'package:flutter_app/Widgets/small_screen.dart';
-import 'package:flutter_app/site_Layout.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:ndialog/ndialog.dart';
+
 import 'package:provider/provider.dart';
 import 'package:flutter_app/Constants/style.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../Page_Navigator.dart';
 import 'Small_game_page.dart';
 
 class gameScaffold extends StatelessWidget {
+  final Widget smsa =
+      SvgPicture.asset('assets/images/smsa.svg', semanticsLabel: 'smsa Logo');
+
+  final Widget scome =
+      SvgPicture.asset('assets/images/scome.svg', semanticsLabel: 'scome Logo');
+
+  Future<void> _launchInBrowser(Uri url) async {
+    if (!await launchUrl(
+      url,
+      mode: LaunchMode.externalApplication,
+    )) {
+      throw 'Could not launch $url';
+    }
+  }
+
+  String? encodeQueryParameters(Map<String, String> params) {
+    return params.entries
+        .map((MapEntry<String, String> e) =>
+            '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+        .join('&');
+  }
+
+// ···
+
+  final Uri toLaunch =
+      Uri(scheme: 'https', host: 'www.facebook.com', path: 'SMSAofficiall');
   @override
   Widget build(BuildContext context) {
+    final Uri emailLaunchUri = Uri(
+      scheme: 'mailto',
+      path: 'om.elkousy@gmail.com',
+      query: encodeQueryParameters(<String, String>{
+        'subject': 'Example Subject & Symbols are allowed!',
+      }),
+    );
     double _width = MediaQuery.of(context).size.width;
     double _height = MediaQuery.of(context).size.height;
     return MultiProvider(
@@ -66,7 +97,145 @@ class gameScaffold extends StatelessWidget {
                   width: 100,
                   child: FittedBox(
                     child: OutlinedButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        {
+                          context.read<PageProvider>().reverseContact();
+                          await NAlertDialog(
+                            dismissable: false,
+                            backgroundColor:
+                                const Color.fromARGB(255, 136, 19, 10),
+                            blur: 2,
+                            dialogStyle: DialogStyle(titleDivider: true),
+                            title: const Center(
+                              child: Text(
+                                "تواصل معنا",
+                                style: TextStyle(
+                                  fontFamily: 'ElMessiri',
+                                ),
+                              ),
+                            ),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  "هذا الموقع جزء من مشروع تعليم الإسعافات الأولية الذي تقيمه لجنة التعليم الطبي بالجمعية العلمية",
+                                  style: TextStyle(
+                                    fontFamily: 'ElMessiri',
+                                  ),
+                                  maxLines: 2,
+                                ),
+                                Text(
+                                  "",
+                                  style: TextStyle(
+                                    fontFamily: 'ElMessiri',
+                                  ),
+                                ),
+                                Center(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Container(
+                                        height: 100,
+                                        width: 200,
+                                        child: scome,
+                                      ),
+                                      Container(
+                                          height: 100, width: 200, child: smsa),
+                                    ],
+                                  ),
+                                ),
+                                Text(
+                                  "",
+                                  style: TextStyle(
+                                    fontFamily: 'ElMessiri',
+                                  ),
+                                ),
+                                Text(
+                                  "تم التصميم والتطوير بواسطة: عمر القوصي ",
+                                  style: TextStyle(
+                                    fontFamily: 'ElMessiri',
+                                  ),
+                                ),
+                                Text(
+                                  "للتواصل مع المطور: om.elkousy@gmail.com",
+                                  style: TextStyle(
+                                    fontFamily: 'ElMessiri',
+                                  ),
+                                ),
+                                Text(
+                                  "",
+                                  style: TextStyle(
+                                    fontFamily: 'ElMessiri',
+                                  ),
+                                ),
+                                Text(
+                                  "للتعرف علي الجمعية, زر صفحتنا علي الفيسبوك ",
+                                  style: TextStyle(
+                                    fontFamily: 'ElMessiri',
+                                  ),
+                                ),
+                              ],
+                            ),
+                            actions: <Widget>[
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  primary:
+                                      const Color.fromARGB(255, 113, 38, 38),
+                                ),
+                                onPressed: () {
+                                  _launchInBrowser(toLaunch);
+                                  context.read<PageProvider>().reverseContact();
+                                  Navigator.of(context)
+                                      .pushReplacementNamed('/');
+                                },
+                                child: const Text(
+                                  'تواصل معنا',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: 'ElMessiri',
+                                  ),
+                                ),
+                              ),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  primary:
+                                      const Color.fromARGB(255, 113, 38, 38),
+                                ),
+                                onPressed: () {
+                                  launchUrl(emailLaunchUri);
+                                  context.read<PageProvider>().reverseContact();
+                                  Navigator.of(context)
+                                      .pushReplacementNamed('/');
+                                },
+                                child: const Text(
+                                  'تواصل مع المطور',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: 'ElMessiri',
+                                  ),
+                                ),
+                              ),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  primary:
+                                      const Color.fromARGB(255, 113, 38, 38),
+                                ),
+                                onPressed: () {
+                                  context.read<PageProvider>().reverseContact();
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text(
+                                  'عد للخلف',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: 'ElMessiri',
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ).show(context);
+                        }
+                      },
                       style: OutlinedButton.styleFrom(
                           primary: Colors.white,
                           side: const BorderSide(width: 6, color: Colors.red)),

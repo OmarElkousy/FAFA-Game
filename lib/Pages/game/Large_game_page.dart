@@ -3,6 +3,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/Pages/game/video_player_widget.dart';
 import 'package:flutter_app/Providers/lives.dart';
+
 import 'package:provider/provider.dart';
 import 'package:flutter_app/Providers/levels_provider.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
@@ -96,7 +97,7 @@ class _LargeGamePageState extends State<LargeGamePage> {
                                         (index) => Row(
                                           children: [
                                             Icon(
-                                              Icons.health_and_safety_rounded,
+                                              Icons.favorite,
                                               size: 50,
                                               color: Colors.red,
                                             ),

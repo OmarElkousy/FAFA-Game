@@ -21,9 +21,6 @@ class SiteLayout extends StatelessWidget {
     double _height = MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: topNavigationBar(context),
-      drawer: const Drawer(
-        child: SideMenu(),
-      ),
       body: Stack(
         children: [
           Positioned(

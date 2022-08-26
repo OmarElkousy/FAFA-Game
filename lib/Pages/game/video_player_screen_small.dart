@@ -63,6 +63,7 @@ class _SmallYoutubeVideoState extends State<SmallYoutubeVideo> {
 
   //switch modes
   late bool isAsking;
+  bool isFinished = false;
 
   // Breakpoints related
   bool firstTime = false;
@@ -117,20 +118,27 @@ class _SmallYoutubeVideoState extends State<SmallYoutubeVideo> {
     //create a listener
     _controller.listen(
       (event) {
-        for (BreakPoint breakpoint in breakpoints) {
-          if (_controller.value.position.inSeconds ==
-              breakpoint.timestamp.inSeconds) {
-            if (breakpoint.id == currentBreakPoint) {
-              print('fess');
+        if (context.watch<PageProvider>().isContact) {
+          _controller.pause();
+        }
+        if (!isFinished) {
+          for (BreakPoint breakpoint in breakpoints) {
+            if (_controller.value.position.inSeconds ==
+                    breakpoint.timestamp.inSeconds &&
+                _controller.value.position.inMinutes ==
+                    breakpoint.timestamp.inMinutes) {
+              if (breakpoint.id == currentBreakPoint) {
+                print('fess');
 
-              _controller.pause();
-              setState(() {
-                secondTimeChoosing = false;
-                isAsking = true;
-              });
-              firstTime2 = true;
-              breakpoint.isChecked = true;
-              // new solution
+                _controller.pause();
+                setState(() {
+                  secondTimeChoosing = false;
+                  isAsking = true;
+                });
+                firstTime2 = true;
+                breakpoint.isChecked = true;
+                // new solution
+              }
             }
           }
         }
@@ -157,7 +165,8 @@ class _SmallYoutubeVideoState extends State<SmallYoutubeVideo> {
                 ignoring: isAsking,
                 child: Visibility(
                   maintainState: true,
-                  visible: !isAsking,
+                  visible:
+                      !isAsking && !context.watch<PageProvider>().isContact,
                   child: YoutubePlayerIFrame(
                     controller: _controller,
                     aspectRatio: 16 / 9,
@@ -328,9 +337,9 @@ class _SmallYoutubeVideoState extends State<SmallYoutubeVideo> {
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontFamily: 'ElMessiri',
-                                      fontSize: 70,
+                                      fontSize: 50,
                                     ),
-                                    maxLines: 1,
+                                    maxLines: 2,
                                   ),
                                   onPressed: active1
                                       ? secondTimeChoosing
@@ -391,6 +400,9 @@ class _SmallYoutubeVideoState extends State<SmallYoutubeVideo> {
                                                         breakpointsWidg[
                                                                 currentBreakPoint]
                                                             .id;
+                                                  } else if (currentBreakPoint ==
+                                                      breakpointsWidg.last.id) {
+                                                    isFinished = true;
                                                   }
                                                 });
                                                 answer1Color =
@@ -505,9 +517,9 @@ class _SmallYoutubeVideoState extends State<SmallYoutubeVideo> {
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontFamily: 'ElMessiri',
-                                      fontSize: 70,
+                                      fontSize: 50,
                                     ),
-                                    maxLines: 1,
+                                    maxLines: 2,
                                   ),
                                   onPressed: active2
                                       ? secondTimeChoosing
@@ -559,6 +571,9 @@ class _SmallYoutubeVideoState extends State<SmallYoutubeVideo> {
                                                         breakpointsWidg[
                                                                 currentBreakPoint]
                                                             .id;
+                                                  } else if (currentBreakPoint ==
+                                                      breakpointsWidg.last.id) {
+                                                    isFinished = true;
                                                   }
                                                 });
                                                 answer2Color = Color.fromRGBO(

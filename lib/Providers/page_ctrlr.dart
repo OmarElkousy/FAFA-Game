@@ -12,6 +12,14 @@ class PageProvider with ChangeNotifier {
   bool _isPlaying = true;
   bool get isPlaying => _isPlaying;
 
+  bool _isContact = false;
+  bool get isContact => _isContact;
+
+  void reverseContact() {
+    _isContact = !_isContact;
+    notifyListeners();
+  }
+
   void reversePlaying() {
     _isPlaying = !_isPlaying;
     notifyListeners();

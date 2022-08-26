@@ -95,7 +95,7 @@ class _SmallGamePageState extends State<SmallGamePage> {
                                         (index) => Row(
                                           children: [
                                             Icon(
-                                              Icons.health_and_safety_rounded,
+                                              Icons.favorite,
                                               size: 50,
                                               color: Colors.red,
                                             ),

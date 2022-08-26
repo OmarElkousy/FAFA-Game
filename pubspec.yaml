@@ -38,11 +38,14 @@ dependencies:
   google_fonts: ^3.0.1
   carousel_slider: ^4.1.1
   auto_size_text: ^3.0.0
-  video_player: ^2.4.5
+  
   youtube_player_iframe:  ^2.0.5+1
   circular_countdown_timer: ^0.2.2
   audioplayers: ^1.0.1
   ndialog: ^4.1.1+1
+  url_launcher: ^6.1.5
+  flutter_svg: ^1.1.4
+  
   
   
   flutter_localizations: 
@@ -76,8 +79,10 @@ flutter:
     - assets/images/person.png
     - assets/images/smoky.gif
     
-    - assets/images/level_1.jpg
+    - assets/images/level_1.png
     - assets/images/level_2.jpg
+    - assets/images/scome.svg
+    - assets/images/smsa.svg
     - assets/
 
   # An image asset can refer to one or more resolution-specific "variants", see

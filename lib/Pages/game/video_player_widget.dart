@@ -62,7 +62,7 @@ class _YoutubeVideoState extends State<YoutubeVideo> {
 
   //switch modes
   late bool isAsking;
-
+  bool isFinished = false;
   // Breakpoints related
   bool firstTime = false;
   bool firstTime2 = false;
@@ -116,20 +116,24 @@ class _YoutubeVideoState extends State<YoutubeVideo> {
     //create a listener
     _controller.listen(
       (event) {
-        for (BreakPoint breakpoint in breakpoints) {
-          if (_controller.value.position.inSeconds ==
-              breakpoint.timestamp.inSeconds) {
-            if (breakpoint.id == currentBreakPoint) {
-              print('fess');
+        if (!isFinished) {
+          for (BreakPoint breakpoint in breakpoints) {
+            if (_controller.value.position.inSeconds ==
+                    breakpoint.timestamp.inSeconds &&
+                _controller.value.position.inMinutes ==
+                    breakpoint.timestamp.inMinutes) {
+              if (breakpoint.id == currentBreakPoint) {
+                print('fess');
 
-              _controller.pause();
-              setState(() {
-                secondTimeChoosing = false;
-                isAsking = true;
-              });
-              firstTime2 = true;
-              breakpoint.isChecked = true;
-              // new solution
+                _controller.pause();
+                setState(() {
+                  secondTimeChoosing = false;
+                  isAsking = true;
+                });
+                firstTime2 = true;
+                breakpoint.isChecked = true;
+                // new solution
+              }
             }
           }
         }
@@ -152,7 +156,7 @@ class _YoutubeVideoState extends State<YoutubeVideo> {
             ignoring: isAsking,
             child: Visibility(
               maintainState: true,
-              visible: !isAsking,
+              visible: !isAsking && !context.watch<PageProvider>().isContact,
               child: YoutubePlayerIFrame(
                 controller: _controller,
                 aspectRatio: 16 / 9,
@@ -291,6 +295,10 @@ class _YoutubeVideoState extends State<YoutubeVideo> {
                                                             breakpointsWidg[
                                                                     currentBreakPoint]
                                                                 .id;
+                                                      } else if (currentBreakPoint ==
+                                                          breakpointsWidg
+                                                              .last.id) {
+                                                        isFinished = true;
                                                       }
                                                     });
                                                     answer1Color =
@@ -469,6 +477,10 @@ class _YoutubeVideoState extends State<YoutubeVideo> {
                                                             breakpointsWidg[
                                                                     currentBreakPoint]
                                                                 .id;
+                                                      } else if (currentBreakPoint ==
+                                                          breakpointsWidg
+                                                              .last.id) {
+                                                        isFinished = true;
                                                       }
                                                     });
                                                     answer2Color =

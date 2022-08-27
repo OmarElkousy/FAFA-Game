@@ -1,12 +1,15 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:circular_countdown_timer/circular_countdown_timer.dart';
+import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/Providers/page_ctrlr.dart';
 import 'package:ndialog/ndialog.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_app/Providers/levels_provider.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+import 'package:youtube_player_iframe/youtube_player_iframe.dart' as fess;
+import 'dart:math';
 
 import '../../Providers/lives.dart';
 
@@ -33,11 +36,14 @@ class _YoutubeVideoState extends State<YoutubeVideo> {
   void initState() {
     print('started.');
     setAudio();
+    _controllerCenterLeft =
+        ConfettiController(duration: const Duration(seconds: 10));
     super.initState();
   }
 
   @override
   void dispose() {
+    _controllerCenterLeft.dispose();
     // TODO: implement dispose
 
     print('closed');
@@ -59,6 +65,7 @@ class _YoutubeVideoState extends State<YoutubeVideo> {
   Color answer1Color = Color.fromRGBO(0, 0, 0, 0.259);
   Color answer2Color = Color.fromRGBO(0, 0, 0, 0.259);
   bool secondTimeChoosing = false;
+  bool showConfetti = false;
 
   //switch modes
   late bool isAsking;
@@ -76,6 +83,7 @@ class _YoutubeVideoState extends State<YoutubeVideo> {
 
   // yt ctrlr
   late YoutubePlayerController _controller;
+  late ConfettiController _controllerCenterLeft;
 
   @override
   void didChangeDependencies() {
@@ -116,6 +124,9 @@ class _YoutubeVideoState extends State<YoutubeVideo> {
     //create a listener
     _controller.listen(
       (event) {
+        if (context.watch<PageProvider>().isContact) {
+          _controller.pause();
+        }
         if (!isFinished) {
           for (BreakPoint breakpoint in breakpoints) {
             if (_controller.value.position.inSeconds ==
@@ -137,9 +148,103 @@ class _YoutubeVideoState extends State<YoutubeVideo> {
             }
           }
         }
+        if (_controller.value.playerState == fess.PlayerState.ended) {
+          setState(() {
+            showConfetti = true;
+          });
+          NAlertDialog(
+            dismissable: false,
+            backgroundColor: Color.fromARGB(255, 136, 19, 10),
+            blur: 2,
+            dialogStyle: DialogStyle(titleDivider: true),
+            title: Center(
+              child: Text(
+                "تم الإنقاذ!",
+                style: TextStyle(
+                  fontFamily: 'ElMessiri',
+                ),
+              ),
+            ),
+            content: Column(
+              children: [
+                Text(
+                  "مرحبا بك في فريق المسعفين !",
+                  style: TextStyle(
+                    fontFamily: 'ElMessiri',
+                  ),
+                ),
+                Text(
+                  "لقد استطعت أن تنفذ الإسعافات الأولية بالشكل الصحيح",
+                  style: TextStyle(
+                    fontFamily: 'ElMessiri',
+                  ),
+                ),
+                Text(
+                  "و كان متبقيا لك $currentBreakPoint محاولات أخري",
+                  style: TextStyle(
+                    fontFamily: 'ElMessiri',
+                  ),
+                ),
+                Text(
+                  "",
+                  style: TextStyle(
+                    fontFamily: 'ElMessiri',
+                  ),
+                ),
+                Text(
+                  "أكمل باقي المستويات و شارك اللعبة مع أصدقائك !",
+                  style: TextStyle(
+                    fontFamily: 'ElMessiri',
+                  ),
+                ),
+              ],
+            ),
+            actions: <Widget>[
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  primary: Color.fromARGB(255, 136, 19, 10),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pushReplacementNamed('/');
+                },
+                child: Text(
+                  'عد للبداية',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontFamily: 'ElMessiri',
+                  ),
+                ),
+              )
+            ],
+          ).show(context);
+        }
       },
     );
     super.didChangeDependencies();
+  }
+
+  Path drawStar(Size size) {
+    // Method to convert degree to radians
+    double degToRad(double deg) => deg * (pi / 180.0);
+
+    const numberOfPoints = 5;
+    final halfWidth = size.width / 2;
+    final externalRadius = halfWidth;
+    final internalRadius = halfWidth / 2.5;
+    final degreesPerStep = degToRad(360 / numberOfPoints);
+    final halfDegreesPerStep = degreesPerStep / 2;
+    final path = Path();
+    final fullAngle = degToRad(360);
+    path.moveTo(size.width, halfWidth);
+
+    for (double step = 0; step < fullAngle; step += degreesPerStep) {
+      path.lineTo(halfWidth + externalRadius * cos(step),
+          halfWidth + externalRadius * sin(step));
+      path.lineTo(halfWidth + internalRadius * cos(step + halfDegreesPerStep),
+          halfWidth + internalRadius * sin(step + halfDegreesPerStep));
+    }
+    path.close();
+    return path;
   }
 
   @override
@@ -156,7 +261,9 @@ class _YoutubeVideoState extends State<YoutubeVideo> {
             ignoring: isAsking,
             child: Visibility(
               maintainState: true,
-              visible: !isAsking && !context.watch<PageProvider>().isContact,
+              visible: !isAsking &&
+                  !context.watch<PageProvider>().isContact &&
+                  !showConfetti,
               child: YoutubePlayerIFrame(
                 controller: _controller,
                 aspectRatio: 16 / 9,
@@ -602,7 +709,7 @@ class _YoutubeVideoState extends State<YoutubeVideo> {
                               width: qConstraints.maxWidth * 0.3,
                               height: qConstraints.maxHeight * 0.4,
                               child: CircularCountDownTimer(
-                                duration: 5,
+                                duration: 7,
                                 initialDuration: 0,
                                 controller: _countController,
                                 width: widget.constraints.maxWidth * .3,
@@ -700,6 +807,20 @@ class _YoutubeVideoState extends State<YoutubeVideo> {
                     ],
                   )),
             ),
+          ),
+        ),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: ConfettiWidget(
+            confettiController: _controllerCenterLeft,
+            blastDirection: 0, // radial value - RIGHT
+            emissionFrequency: 0.6,
+            minimumSize: const Size(10,
+                10), // set the minimum potential size for the confetti (width, height)
+            maximumSize: const Size(50,
+                50), // set the maximum potential size for the confetti (width, height)
+            numberOfParticles: 5,
+            gravity: 0.1,
           ),
         ),
       ],

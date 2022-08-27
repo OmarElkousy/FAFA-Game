@@ -45,7 +45,7 @@ dependencies:
   ndialog: ^4.1.1+1
   url_launcher: ^6.1.5
   flutter_svg: ^1.1.4
-  
+  confetti: ^0.7.0
   
   
   flutter_localizations: 
@@ -80,7 +80,7 @@ flutter:
     - assets/images/smoky.gif
     
     - assets/images/level_1.png
-    - assets/images/level_2.jpg
+    - assets/images/level_2.png
     - assets/images/scome.svg
     - assets/images/smsa.svg
     - assets/

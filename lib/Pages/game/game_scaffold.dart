@@ -136,11 +136,18 @@ class gameScaffold extends StatelessWidget {
                                     children: [
                                       Container(
                                         height: 100,
-                                        width: 200,
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.25,
                                         child: scome,
                                       ),
                                       Container(
-                                          height: 100, width: 200, child: smsa),
+                                          height: 100,
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.25,
+                                          child: smsa),
                                     ],
                                   ),
                                 ),
